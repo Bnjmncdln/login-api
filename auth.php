@@ -1,7 +1,7 @@
 <?php
 session_start();
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $conn = new mysqli("localhost", "root", "", "user");
+    $pdo = new PDO('mysql:host=localhost;dbname=user','root','');
 
     $query = ("SELECT * FROM users");
 
@@ -9,12 +9,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = $_POST["password"];
 
     // Validate user input
-    $query = "SELECT * FROM users WHERE username = ? AND password = ?";
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param("ss", $username, $password);
+    $query = "SELECT * FROM users WHERE username = :username AND password = :password";
+    $stmt = $pdo->prepare($query);
+    $stmt->bindParam(':username', $username);
+    $stmt->bindParam(':password', $password);
     $stmt->execute();
-    $result = $stmt->get_result();
-    $user = $result->fetch_assoc();
+
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($user) {
         $_SESSION["username"] = $user["username"];
